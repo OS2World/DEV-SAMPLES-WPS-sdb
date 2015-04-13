@@ -1,0 +1,96 @@
+//*******************************************************************************
+// sdb.idl
+//
+// IDL for Sdb, a SOM-compliant database
+//*******************************************************************************
+
+#ifndef _Sdb_
+	#define _Sdb_
+	#include <somobj.idl>
+	#include <somcls.idl>
+	#include "sdbmeta.idl"
+
+	interface Sdb : SOMObject {
+		enum Status {OK, ERROR, NOLOCK, ATINDEXSTART, ATINDEXEND, FOUND, NOTFOUND,
+				 	 TOOMANYFIELDS, TYPEMISMATCH, NOFIELDS};
+
+		boolean create(in string dbName, in string fieldSpecs, in short blockSize);
+		boolean open(in string dbName, in boolean readOnly, in boolean share);
+		boolean close();
+		boolean destroy(in string dbName);
+ 		boolean flush();
+		boolean lock(in boolean readPermitted);
+		boolean unlock();
+		boolean copy(in string curName, in string copyName, in short blockSize);
+		string fileName();
+		Status lastStatus();
+
+		boolean addRec();
+		boolean getRec(in boolean lock);
+		boolean delRec();
+		boolean findHeadRec();
+		boolean findNextRec();
+		boolean findPrevRec();
+		boolean findTailRec();
+		boolean findRec();
+		boolean modRec();
+		boolean importRecs(in string fileName, in char delimiter);
+
+		boolean createIndex(in string indexName, in string indexFields);
+		boolean selectIndex(in string indexName);
+		boolean deleteIndex(in string indexName);
+		short numFields();
+		string fieldSpec(in string fieldName);
+		string fieldSpecs();
+		short binaryFieldLen(in string fieldName);
+		short numIndexes();
+		short numIndexFields();
+		string indexSpec(in string indexName);
+		boolean clearFields();
+
+		boolean setStrField(in string fieldName, in string value);
+		boolean setShortField(in string fieldName, in short value);
+		boolean setUShortField(in string fieldName, in unsigned short value);
+		boolean setLongField(in string fieldName, in long value);
+		boolean setFloatField(in string fieldName, in float value);
+		boolean setDoubleField(in string fieldName, in double value);
+		boolean setBinaryField(in string fieldName, in string value);
+
+		string strField(in string fieldName);
+		short shortField(in string fieldName);
+		unsigned short ushortField(in string fieldName);
+		long longField(in string fieldName);
+		float floatField(in string fieldName);
+		double doubleField(in string fieldName);
+		string binaryField(in string fieldName);
+
+		#ifdef __SOMIDL__
+		implementation {
+			void* iDb;
+			short iResult;
+			short iCurIndex;
+			short iLastLockType;
+			boolean iReadOnly;
+			boolean iShare;
+			char iName[80];
+			char iCurIndexName[80];
+
+			releaseorder: create, open, close, destroy, lastStatus, fieldNum, setStrField,
+			setShortField, setUShortField, setLongField, addRec, getRec,
+			setFloatField, setDoubleField, strField, shortField, delRec,
+			ushortField, longField, floatField, doubleField, findHeadRec,
+			findNextRec, findPrevRec, createIndex, selectIndex, deleteIndex,
+			findRec, findTailRec, flush, numFields, fieldSpec, fieldSpecs,
+			fileName, numIndexes, numIndexFields, indexSpec, lock, unlock,
+			clearFields, modRec, copy, setBinaryField, binaryField,
+			binaryFieldLen, importRecs;
+			metaclass = SdbMeta;
+			majorversion = 0;
+			minorversion = 0;
+			dllname = "sdb.dll";
+			somDefaultInit: override, init;
+			somDestruct: override;
+		};
+	#endif
+	};
+#endif

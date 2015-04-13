@@ -1,0 +1,37 @@
+//******************************************************************************
+// sdbmeta.idl
+//
+// IDL for SdbMeta, the Sdb Metaclass
+//******************************************************************************
+
+#include <somobj.idl>
+#include <somcls.idl>
+
+interface Sdb;
+
+interface SdbMeta : SOMClass {
+	void setLocking(in short tries, in long delay, in long timeout);
+	short lockTries();
+	long lockDelay();
+	long lockTimeout();
+	boolean setBuffers(in short numBufs, in short bufSize);
+ 	boolean renameDb(in string oldName, in string newName);
+
+	#ifdef __SOMIDL__
+	implementation {
+		short iBufferCount;
+		short iBufferSize;
+ 		short iLockTryCount;
+		long iLockDelayMs;
+		long iLockTimeoutMs;
+
+		releaseorder: lockTries, lockDelay, lockTimeout, setLocking, setBuffers, renameDb;
+		majorversion = 0;
+		minorversion = 0;
+		dllname = "sdb.dll";
+		somDefaultInit: override, init;
+		somDestruct: override;
+	};
+	#endif
+};
+
